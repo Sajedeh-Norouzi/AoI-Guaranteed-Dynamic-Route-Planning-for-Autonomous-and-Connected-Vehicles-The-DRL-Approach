@@ -10,9 +10,9 @@ import networkx as nx
 np.random.seed (1376)
 class Env:
     
-    def __init__(self):
+    def __init__(self, n_vehicle, n_subchannel, n_paths):
         
-        self.n_vehicle = 40
+        self.n_vehicle = n_vehicle
         self.x_max = 3 * 250 # m
         self.y_max = 3 * 430 # m
         #self.speed = 10/10e3 # m/ms in this case it added just a bout 0.001 and it didnt make change in locations
@@ -20,12 +20,12 @@ class Env:
         self.max_AoI = 10 # ms
         self.max_capacity = 4
         self.deltaM = 2 #Capacity estimation error 
-        self.n_subchannel =  10
+        self.n_subchannel =  n_subchannel
         self.sigma_noise = 10e-15
         self.time_slot = 1  # ms
-        self.n_vehicle_per_sub = 2  # NOMA 
+        self.n_vehicle_per_sub = int(0.5* self.n_vehicle/self.n_subchannel)  # NOMA 
         self.n_node = 16
-        self.n_paths = 24
+        self.n_paths = n_paths
         
     def road(self):
         
@@ -212,105 +212,105 @@ class Env:
                     
         return loc_vehicle, flag_vehicle
     
-    def capacity(self, loc_vehicle, road, age):
+    def flow(self, loc_vehicle, road, age):
         
-        capacity = np.zeros(self.n_paths) #capacity is the current flow of each path 
+        flow = np.zeros(self.n_paths) 
         AoI = np.zeros(self.n_paths)
         AoI_M = np.zeros(self.n_paths)
         for i in range(self.n_vehicle):
         
             if road[str(1)][0]<loc_vehicle[i][0] and loc_vehicle[i][0]<road[str(2)][0]:
                 if loc_vehicle[i][1]==0:
-                  capacity[0] += 1
+                  flow[0] += 1
                   AoI[0] += age[i]
                 if loc_vehicle[i][1]==430:
-                  capacity[7] += 1
+                  flow[7] += 1
                   AoI[7] += age[i]
                 if loc_vehicle[i][1]==860:
-                  capacity[14] += 1 
+                  flow[14] += 1 
                   AoI[14] += age[i]
                 if loc_vehicle[i][1]==1290:
-                  capacity[21] += 1  
+                  flow[21] += 1  
                   AoI[21] += age[i]
             #-------------------------------------------------------------------
             if road[str(2)][0]<loc_vehicle[i][0] and loc_vehicle[i][0]<road[str(3)][0]:
                 if loc_vehicle[i][1]==0:
-                  capacity[1] += 1
+                  flow[1] += 1
                   AoI[1] += age[i]
                 if loc_vehicle[i][1]==430:
-                  capacity[8] += 1
+                  flow[8] += 1
                   AoI[8] += age[i]
                 if loc_vehicle[i][1]==860:
-                  capacity[15] += 1  
+                  flow[15] += 1  
                   AoI[15] += age[i]
                 if loc_vehicle[i][1]==1290:
-                  capacity[22] += 1 
+                  flow[22] += 1 
                   AoI[22] += age[i]
             #-------------------------------------------------------------------
             if road[str(3)][0]<loc_vehicle[i][0] and loc_vehicle[i][0]<road[str(4)][0]:
                 if loc_vehicle[i][1]==0:
-                  capacity[2] += 1
+                  flow[2] += 1
                   AoI[2] += age[i]
                 if loc_vehicle[i][1]==430:
-                  capacity[9] += 1
+                  flow[9] += 1
                   AoI[9] += age[i]
                 if loc_vehicle[i][1]==860:
-                  capacity[16] += 1  
+                  flow[16] += 1  
                   AoI[16] += age[i]
                 if loc_vehicle[i][1]==1290:
-                  capacity[23] += 1  
+                  flow[23] += 1  
                   AoI[23] += age[i]
             #-------------------------------------------------------------------
             if road[str(1)][1]<loc_vehicle[i][1] and loc_vehicle[i][1]<road[str(5)][1]:
                 if loc_vehicle[i][0]==0:
-                  capacity[3] += 1
+                  flow[3] += 1
                   AoI[3] += age[i]
                 if loc_vehicle[i][0]==250:
-                  capacity[4] += 1
+                  flow[4] += 1
                   AoI[4] += age[i]
                 if loc_vehicle[i][0]==500:
-                  capacity[5] += 1  
+                  flow[5] += 1  
                   AoI[5] += age[i]
                 if loc_vehicle[i][0]==750:
-                  capacity[6] += 1  
+                  flow[6] += 1  
                   AoI[6] += age[i]
             #-------------------------------------------------------------------
             if road[str(5)][1]<loc_vehicle[i][1] and loc_vehicle[i][1]<road[str(9)][1]:
                 if loc_vehicle[i][0]==0:
-                  capacity[10] += 1
+                  flow[10] += 1
                   AoI[10] += age[i]
                 if loc_vehicle[i][0]==250:
-                  capacity[11] += 1
+                  flow[11] += 1
                   AoI[11] += age[i]
                 if loc_vehicle[i][0]==500:
-                  capacity[12] += 1  
+                  flow[12] += 1  
                   AoI[12] += age[i]
                 if loc_vehicle[i][0]==750:
-                  capacity[13] += 1
+                  flow[13] += 1
                   AoI[13] += age[i]
             #-------------------------------------------------------------------
             if road[str(9)][1]<loc_vehicle[i][1] and loc_vehicle[i][1]<road[str(13)][1]:
                 if loc_vehicle[i][0]==0:
-                  capacity[17] += 1
+                  flow[17] += 1
                   AoI[17] += age[i]
                 if loc_vehicle[i][0]==250:
-                  capacity[18] += 1
+                  flow[18] += 1
                   AoI[18] += age[i]
                 if loc_vehicle[i][0]==500:
-                  capacity[19] += 1 
+                  flow[19] += 1 
                   AoI[19] += age[i]
                 if loc_vehicle[i][0]==750:
-                  capacity[20] += 1   
+                  flow[20] += 1   
                   AoI[20] += age[i]
             
         for r in range(self.n_paths):
-            if (AoI[r] !=0) and (capacity[r] !=0):
-                AoI_M[r] = AoI[r] /capacity[r]
+            if (AoI[r] !=0) and (flow[r] !=0):
+                AoI_M[r] = AoI[r] /flow[r]
                   
-        return capacity, AoI_M
+        return flow, AoI_M
     
     
-    def estimated_capacity(self, capacity, AoI_M):
+    def estimated_capacity(self, flow, AoI_M):
         
         estimated_capacity = np.zeros(self.n_paths)
         travel_times = np.zeros(self.n_paths)
@@ -320,7 +320,7 @@ class Env:
         length430 = [3,4,5,6,10,11,12,13,17,18,19,20] 
             
         for r in range(self.n_paths): 
-            estimated_capacity[r] = self.max_capacity - capacity[r] - (int(AoI_M[r]/self.max_AoI)* self.deltaM) 
+            estimated_capacity[r] = self.max_capacity - flow[r] - (int(AoI_M[r]/self.max_AoI)* self.deltaM) 
             # the estimated capacity 
             if r in length250:
                 lengthroad[r] = 250
@@ -329,9 +329,9 @@ class Env:
                 
             free_flow_time[r] = lengthroad[r]/ self.speed  
             if estimated_capacity [r] > 0:
-                travel_times[r] = free_flow_time[r] * ( 1 + 0.15*((capacity[r]/estimated_capacity[r] )**4))
+                travel_times[r] = free_flow_time[r] * ( 1 + 0.15*((flow[r]/estimated_capacity[r] )**4))
             else:
-                travel_times[r] = 5*free_flow_time[r] * ( 1 + 0.15*((capacity[r]/1 )**4))
+                travel_times[r] = 5*free_flow_time[r] * ( 1 + 0.15*((flow[r]/1 )**4))
         return estimated_capacity, travel_times
               
     def AoI(self, ch_assignment, age_f, flag_vehicle):
@@ -357,36 +357,48 @@ class Env:
                     flag_reach[i] = 1
                     reach_to[i] = j
                     
-        return flag_reach, reach_to            
-
+        return flag_reach, reach_to           
+    
     def start_point(self):
-        
-        first_states = []
-        #first_states_norm = []
-        initial_locs_co = []
+        # Generate the road network and get initial positions (both node indices and coordinates)
         road = self.road()
         initial_locs, destination_loc, initial_locs_co, destination_loc_co = self.initial_locs(road)
-        #initial_select_points, first_selected_point, first_selected_point_co= self.initial_select_point(initial_locs, destination_loc)
-        # initial_select_points, first_selected_point= self.initial_select_point(initial_locs, destination_loc)
-        first_selected_point= self.initial_select_point(initial_locs, destination_loc)
-        age = 5* np.ones(self.n_vehicle)
-        capacity = np.zeros(self.n_paths)
-        flag_vehicle = np.zeros(self.n_vehicle)
-        tt_veh = np.zeros(self.n_vehicle)
-        all_first_states = np.concatenate((np.reshape(initial_locs_co, -1), np.reshape(destination_loc_co, -1), \
-                                           np.reshape(first_selected_point, -1),
-                                           np.reshape(age, -1), np.reshape(flag_vehicle, -1),
-                                           np.reshape(capacity, -1), np.reshape(tt_veh, -1)), axis = 0)
-        first_states.append(all_first_states)  
-        
-        
-        #all_first_states_normalized = all_first_states/max(all_first_states)
-        #first_states_norm.append(all_first_states_normalized)
-        
-        return all_first_states #, first_states_norm
     
+        # Normalize coordinates
+        initial_locs_co[:, 0] = normalize_coords(initial_locs_co[:, 0], 0, self.x_max)
+        initial_locs_co[:, 1] = normalize_coords(initial_locs_co[:, 1], 0, self.y_max)
+        destination_loc_co[:, 0] = normalize_coords(destination_loc_co[:, 0], 0, self.x_max)
+        destination_loc_co[:, 1] = normalize_coords(destination_loc_co[:, 1], 0, self.y_max)
+    
+        # Select initial route or point
+        first_selected_point = self.initial_select_point(initial_locs, destination_loc)
+    
+        # Initialize other state components
+        age = 5 * np.ones(self.n_vehicle)  # Initial AoI
+        flow = np.zeros(self.n_paths)      # Path flows
+        flag_vehicle = np.zeros(self.n_vehicle)  # Route assignment flags
+        tt_veh = np.zeros(self.n_vehicle)        # Estimated travel times
+    
+        # Combine all into a single state vector
+        state_vector = np.concatenate((
+            initial_locs_co.flatten(),      # Normalized coordinates 2V [0:2V]
+            destination_loc_co.flatten(),   # Normalized destination coordinates 2V [2V:4V]
+            first_selected_point.flatten(), # Initial path selection V [4V:5V]
+            age, # V [5V:6V]
+            flag_vehicle, #V [6V:7V]
+            flow, #n_path n_path [7V:7V+self.n_paths]
+            tt_veh #V   [7V+self.n_paths:8V+self.n_paths]
+        ))
+    
+        return state_vector
+
+
+
+    
+    
+
     def step(self, actions, old_states):
-        
+                
         road= self.road()
         #_____ Getting old states _____
         vehicle_loc = old_states[0: 2*self.n_vehicle].reshape(self.n_vehicle, 2)
@@ -394,8 +406,20 @@ class Env:
         selected_point = old_states[ 4*self.n_vehicle: 5*self.n_vehicle].reshape(self.n_vehicle)
         age = old_states[5*self.n_vehicle:6*self.n_vehicle].reshape(self.n_vehicle)
         flag_vehicle = old_states[6*self.n_vehicle: 7* self.n_vehicle].reshape(self.n_vehicle) #reaching destination 
-        capacity = old_states[7*self.n_vehicle: 7*self.n_vehicle + self.n_paths].reshape(self.n_paths)
+        flow = old_states[7*self.n_vehicle: 7*self.n_vehicle + self.n_paths].reshape(self.n_paths)
         tt_veh = old_states[7*self.n_vehicle + self.n_paths: 8*self.n_vehicle + self.n_paths].reshape(self.n_vehicle)
+        
+        
+        # vehicle_loc = old_states[0: 2*self.n_vehicle].reshape(self.n_vehicle, 2) # initial_locs_co
+        # destination_loc_co = old_states[2*self.n_vehicle: 4*self.n_vehicle].reshape(self.n_vehicle, 2) # destination_loc_co
+        # selected_point = old_states[ 4*self.n_vehicle: 5*self.n_vehicle].reshape(self.n_vehicle)
+        # age = old_states[5*self.n_vehicle:6*self.n_vehicle].reshape(self.n_vehicle)
+        # flag_vehicle = old_states[6*self.n_vehicle: 7* self.n_vehicle].reshape(self.n_vehicle) #reaching destination 
+        # flow = old_states[7*self.n_vehicle: 7*self.n_vehicle + self.n_paths].reshape(self.n_paths)
+        # tt_veh = old_states[7*self.n_vehicle + self.n_paths: 8*self.n_vehicle + self.n_paths].reshape(self.n_vehicle)
+        
+        
+        
         # _____ actions____
         selecting_point = ((actions[0: self.n_vehicle]+1)/2).reshape(self.n_vehicle, 1)
         channel_assignment = ((actions[self.n_vehicle: self.n_vehicle+ (self.n_vehicle * self.n_subchannel)]+1)/2).reshape(self.n_vehicle, self.n_subchannel)
@@ -415,8 +439,8 @@ class Env:
         for i in range(self.n_vehicle):
             if flag_vehicle[i] !=1:
                 if flag_reach[i]==1: 
-                    if not np.sum(capacity[:])==0:
-                        selecting_options_new = self.capacity_check(reach_to, capacity, i)
+                    if not np.sum(flow[:])==0:
+                        selecting_options_new = self.capacity_check(reach_to, flow, i)
                     else: 
                         selecting_options_new = selecting_options
                         
@@ -439,6 +463,13 @@ class Env:
                 
                 
         vehicle_loc_, flag_vehicle_ = self.loc_update(road, vehicle_loc, selected_point_, destination_loc_co, flag_vehicle)    
+        
+        # Normalize coordinates
+        vehicle_loc_[:, 0] = normalize_coords(vehicle_loc_[:, 0], 0, self.x_max)
+        vehicle_loc_[:, 1] = normalize_coords(vehicle_loc_[:, 1], 0, self.y_max)
+        destination_loc_co[:, 0] = normalize_coords(destination_loc_co[:, 0], 0, self.x_max)
+        destination_loc_co[:, 1] = normalize_coords(destination_loc_co[:, 1], 0, self.y_max)
+        
         #_________ Channel assignment ______
         allocated_channel = np.zeros([self.n_vehicle, self.n_subchannel])
        
@@ -452,8 +483,8 @@ class Env:
                     
 
         age_ = self.AoI(allocated_channel, age, flag_vehicle) #age each vehicle 
-        capacity_, AoI_= self.capacity(vehicle_loc_, road, age_) 
-        estimated_capacity_, travel_time_ = self.estimated_capacity(capacity_, AoI_)  
+        flow_, AoI_= self.flow(vehicle_loc_, road, age_) 
+        estimated_capacity_, travel_time_ = self.estimated_capacity(flow_, AoI_)  
         
         tt_veh_ = np.zeros(self.n_vehicle)
         for i in range(self.n_vehicle):
@@ -462,21 +493,28 @@ class Env:
             else:
                 tt_veh_[i] = tt_veh[i]
                 
+        new_state_vector = np.concatenate((
+            vehicle_loc_.flatten(),      # Normalized coordinates 2V [2V:4V]
+            destination_loc_co.flatten(),   # Normalized destination coordinates 2V [4V:6V]
+            selected_point_.flatten(), # Initial path selection V [6V:7V]
+            age_, # V [7V:8V]
+            flag_vehicle_, #V [8V:9V]
+            flow_, #n_path n_path [9V:9V+self.n_paths]
+            tt_veh_ #V   [9V+self.n_paths:10V+self.n_paths]
+        ))
                 
-        new_states = np.concatenate((np.reshape(vehicle_loc_, -1), np.reshape(destination_loc_co, -1), np.reshape(selected_point_, -1),
-                                           np.reshape(age_, -1), np.reshape(flag_vehicle_, -1),
-                                           np.reshape(capacity_, -1), np.reshape(tt_veh_, -1)), axis = 0)
+
         
-        
-        #reward = -np.mean(tt_veh_[:])/ self.n_vehicle
-        # main reward 
-        #reward = -(0.5*(np.mean(travel_time_[:])/np.max(travel_time_[:]))) -(0.5*(np.mean(AoI_[:])/np.max(AoI_[:])))
-        # baseline reward 
-        reward = -((np.mean(travel_time_[:])/np.max(travel_time_[:]))) -((np.mean(AoI_[:])/np.max(AoI_[:])))
+        #reward = -(np.mean(travel_time_[:])/np.max(travel_time_[:]))  # base line 
+        reward = -(np.mean(travel_time_[:])/np.max(travel_time_[:]))-(np.mean(age_[:])/np.max(age_[:]))  #agdrp
 
         # return new_states, reward
-        return new_states, reward, np.sum(travel_time_[:]), np.sum(tt_veh_[:])/ self.n_vehicle, np.sum(age_[:]), np.sum(flag_vehicle_)
+        return new_state_vector, reward, np.sum(travel_time_[:]), np.sum(tt_veh_[:])/ self.n_vehicle, np.sum(age_[:]), np.sum(flag_vehicle_)
+     
         
+def normalize_coords(coords, min_val, max_val):
+    return (coords - min_val) / (max_val - min_val)
+
 
 
 
